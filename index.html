@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGenie</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: white;
+            color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .section {
+            background: #f0f0f5;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 6px;
+        }
+
+        .section h3 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        input,
+        textarea {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 18px;
+            margin-left: 5px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #3367d6;
+        }
+
+        .result {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+        }
+
+        .quiz-question {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+        }
+
+        .option {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+
+        .wrong {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>EduGenie - AI Learning Assistant</h1>
+
+    <!-- Q&A -->
+    <div class="section">
+        <h3>Ask a Question:</h3>
+
+        <input
+            type="text"
+            id="question"
+            placeholder="Enter your question..."
+        >
+
+        <button onclick="askQuestion()">Get Answer</button>
+
+        <div class="result" id="answer">
+            Answer will appear here.
+        </div>
+    </div>
+
+
+    <!-- Explanation -->
+    <div class="section">
+        <h3>Explain a Concept:</h3>
+
+        <input
+            type="text"
+            id="topic"
+            placeholder="Enter a topic..."
+        >
+
+        <button onclick="explainTopic()">Explain</button>
+
+        <div class="result" id="explanation">
+            Explanation will appear here.
+        </div>
+    </div>
+
+
+    <!-- Summary -->
+    <div class="section">
+        <h3>Summarize a Paragraph:</h3>
+
+        <textarea
+            id="paragraph"
+            placeholder="Enter a paragraph..."
+        ></textarea>
+
+        <br><br>
+
+        <button onclick="summarizeText()">Summarize</button>
+
+        <div class="result" id="summary">
+            Summary will appear here.
+        </div>
+    </div>
+
+
+    <!-- Quiz -->
+    <div class="section">
+        <h3>Generate a Quiz:</h3>
+
+        <input
+            type="text"
+            id="quizTopic"
+            placeholder="Enter a topic..."
+        >
+
+        <button onclick="generateQuiz()">Generate Quiz</button>
+
+        <div id="quizResult"></div>
+    </div>
+
+
+    <!-- Learning Path -->
+    <div class="section">
+        <h3>Learning Path:</h3>
+
+        <input
+            type="text"
+            id="learningTopic"
+            placeholder="Enter a subject..."
+        >
+
+        <button onclick="getLearningPath()">
+            Get Recommendations
+        </button>
+
+        <div class="result" id="learningPath">
+            Learning path will appear here.
+        </div>
+    </div>
+
+
+    <script>
+
+        async function askQuestion() {
+
+            const question =
+                document.getElementById("question").value;
+
+            const response = await fetch("/ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            });
+
+            const data = await response.json();
+
+            document.getElementById("answer").innerText =
+                data.answer;
+        }
+
+
+        async function explainTopic() {
+
+            const topic =
+                document.getElementById("topic").value;
+
+            const response = await fetch("/explain", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    topic: topic
+                })
+            });
+
+            const data = await response.json();
+
+            document.getElementById("explanation").innerText =
+                data.explanation;
+        }
+
+
+        async function summarizeText() {
+
+            const paragraph =
+                document.getElementById("paragraph").value;
+
+            const response = await fetch("/summarize", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    text: paragraph
+                })
+            });
+
+            const data = await response.json();
+
+            document.getElementById("summary").innerText =
+                data.summary;
+        }
+
+
+        async function generateQuiz() {
+
+            const topic =
+                document.getElementById("quizTopic").value;
+
+            const response = await fetch("/quiz", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    topic: topic
+                })
+            });
+
+            const data = await response.json();
+
+            const quizContainer =
+                document.getElementById("quizResult");
+
+            quizContainer.innerHTML = "";
+
+            data.quiz.forEach((question, index) => {
+
+                const div =
+                    document.createElement("div");
+
+                div.className = "quiz-question";
+
+                div.innerHTML = `
+                    <strong>Q${index + 1}: ${question.question}</strong>
+
+                    ${question.options.map((option, i) => `
+                        <label class="option">
+                            <input
+                                type="radio"
+                                name="q${index}"
+                                value="${i}"
+                            >
+                            ${option}
+                        </label>
+                    `).join("")}
+
+                    <button onclick="checkAnswer(
+                        ${index},
+                        ${question.answer}
+                    )">
+                        Check Answer
+                    </button>
+
+                    <p id="result${index}"></p>
+                `;
+
+                quizContainer.appendChild(div);
+            });
+        }
+
+
+        function checkAnswer(questionIndex, correctAnswer) {
+
+            const selected =
+                document.querySelector(
+                    `input[name="q${questionIndex}"]:checked`
+                );
+
+            const result =
+                document.getElementById(
+                    `result${questionIndex}`
+                );
+
+            if (!selected) {
+
+                result.innerText =
+                    "Please select an answer.";
+
+                result.className = "wrong";
+
+                return;
+            }
+
+            if (parseInt(selected.value) === correctAnswer) {
+
+                result.innerText = "✓ Correct!";
+
+                result.className = "correct";
+
+            } else {
+
+                result.innerText = "✗ Wrong!";
+
+                result.className = "wrong";
+            }
+        }
+
+
+        async function getLearningPath() {
+
+            const topic =
+                document.getElementById("learningTopic").value;
+
+            const response = await fetch("/learning-path", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    topic: topic
+                })
+            });
+
+            const data = await response.json();
+
+            document.getElementById("learningPath").innerText =
+                data.learning_path;
+        }
+
+    </script>
+
+</body>
+</html>
